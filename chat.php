@@ -15,9 +15,25 @@ $conexao = new mysqli("localhost", "root", "usbw", "chat");
         margin-left: 10vw;
         border: 1px solid blue;
     }
+
+    .meu {
+        color: purple;
+    }
 </style>
 
-<div class="chat"></div>
+<div class="chat">
+    <?php
+    $sql = 'SELECT origem, mensagem FROM msg';
+    $resultado = $conexao->query($sql);
+
+    while ($msg = $resultado->fetch_array()) {
+        $cor = ($msg['origem'] == $_SESSION['nick']) ? 'meu' : '';
+        echo '<b class="'.$cor.'">';
+        echo $msg['origem'] . ":</b> " . $msg['mensagem'];
+        echo "<br>";
+    }
+    ?>
+</div>
 
 <form method="post">
     Mensagem:
@@ -26,8 +42,12 @@ $conexao = new mysqli("localhost", "root", "usbw", "chat");
 </form>
 
 <?php
-    if ($_POST) {
-        $sql = 'INSERT INTO msg(null, "'.$_SESSION['nick'].'","'.$_POST['msg'].'")';
+if ($_POST) {
+    $sql = 'INSERT INTO msg VALUES (null, "' . $_SESSION['nick'] . '","' . $_POST['msg'] . '")';
+    $resultado = $conexao->query($sql);
+    if (!$resultado) {
+        echo "mensagem não enviada: " . $conexao->error;
     }
-    $conexao->query($sql);
+}
+
 ?>
